@@ -1,0 +1,14 @@
+**/.vscode/*
+**/.idea/*
+**/.venv/*
+**/temp/*
+**/migrations/*
+**/__pycache__/*
+**/logs/*
+**/.pytest_cache/*
+
+.DS_Store
+*.zip
+*.sqlite3
+temp.py
+todo.md
