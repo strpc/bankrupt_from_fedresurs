@@ -23,7 +23,7 @@ metadata = MetaData(naming_convention=convention)
 names_table = Table(
     'names',
     metadata,
-    Column('id', Integer, primary_key=True),
+    Column('id', Integer, autoincrement=True, primary_key=True),
     Column('name', String, nullable=False),
     Column(
         'local_uuid', UUID(as_uuid=True),
@@ -32,10 +32,27 @@ names_table = Table(
     Column('date', DateTime(timezone=True), server_default=func.now()),
 )
 
-parse_table = Table(
-    'parsed',
+parse_company_table = Table(
+    'parsed_company',
     metadata,
-    Column('id', Integer, primary_key=True),
+    Column('id', Integer, autoincrement=True, primary_key=True),
+    Column(
+        'link_guid', UUID(as_uuid=True),
+        primary_key=True, nullable=False, unique=True
+        ),
+    Column('ogrn', Integer),
+    Column('inn', Integer),
+    Column('name', String, nullable=False),
+    Column('address', String, nullable=False),
+    Column('status', String, nullable=False),
+    Column('status_date', DateTime, unique=True),
+    Column('primary_names_uuid', UUID(as_uuid=True), ForeignKey('names.local_uuid')),
+)
+
+parse_event_table = Table(
+    'parsed_event',
+    metadata,
+    Column('id', Integer, autoincrement=True, primary_key=True),
     Column('guid', UUID(as_uuid=True), nullable=False),
     Column('number', Integer),
     Column('data_publish', DateTime, unique=True),
@@ -48,5 +65,5 @@ parse_table = Table(
     Column('bankrupt_name', String, nullable=False),
     Column('is_refuted', Boolean, nullable=False),
     Column('text', String),
-    Column('primary_names_uuid', UUID(as_uuid=True), ForeignKey('names.local_uuid')),
+    Column('primary_link_guid', UUID(as_uuid=True), ForeignKey('parsed_company.link_guid')),
 )
