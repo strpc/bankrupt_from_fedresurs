@@ -2,7 +2,7 @@ import uuid
 import httpx
 
 from typing import Union
-from urllib.parse import urlencode
+import datetime
 
 
 def generate_uuid() -> uuid.UUID:
@@ -135,6 +135,13 @@ def get_text(url):
 def datetime_returning():
     # todo: возврат времени в соответствующем часовом поясе
     pass
+
+def datetime_from_string(string: str) -> datetime.datetime:
+    try:
+        return datetime.datetime.strptime(string, '%Y-%m-%dT%H:%M:%S')
+    except:
+        return datetime.datetime.strptime('2000-01-01T00:00:00', '%Y-%m-%dT%H:%M:%S')
+
 
 if __name__ == '__main__':
     pass
