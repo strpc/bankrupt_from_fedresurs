@@ -1,11 +1,10 @@
 from sqlalchemy import (
     Column, ForeignKey, Integer,
-    MetaData, String, Table, DateTime, Boolean
+    MetaData, String, Table, DateTime, Boolean, BigInteger
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 
-import datetime
 
 convention = {
     'all_column_names': lambda constraint, table: '_'.join([
@@ -36,16 +35,13 @@ parse_company_table = Table(
     'parsed_company',
     metadata,
     Column('id', Integer, autoincrement=True, primary_key=True),
-    Column(
-        'link_guid', UUID(as_uuid=True),
-        primary_key=True, nullable=False, unique=True
-        ),
-    Column('ogrn', Integer),
-    Column('inn', Integer),
+    Column('link_guid', UUID(as_uuid=True), nullable=False),
+    Column('ogrn', BigInteger),
+    Column('inn', BigInteger),
     Column('name', String, nullable=False),
     Column('address', String, nullable=False),
     Column('status', String, nullable=False),
-    Column('status_date', DateTime, unique=True),
+    Column('status_date', DateTime),
     Column('primary_names_uuid', UUID(as_uuid=True), ForeignKey('names.local_uuid')),
 )
 
@@ -54,8 +50,8 @@ parse_event_table = Table(
     metadata,
     Column('id', Integer, autoincrement=True, primary_key=True),
     Column('guid', UUID(as_uuid=True), nullable=False),
-    Column('number', Integer),
-    Column('data_publish', DateTime, unique=True),
+    Column('number', BigInteger),
+    Column('data_publish', DateTime),
     Column('is_annuled', Boolean, nullable=True),
     Column('is_locked', Boolean, nullable=True),
     Column('title', String, nullable=False),
@@ -65,5 +61,5 @@ parse_event_table = Table(
     Column('bankrupt_name', String, nullable=False),
     Column('is_refuted', Boolean, nullable=False),
     Column('text', String),
-    Column('primary_link_guid', UUID(as_uuid=True), ForeignKey('parsed_company.link_guid')),
+    Column('primary_link_guid', Integer, ForeignKey('parsed_company.id')),
 )
