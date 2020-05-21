@@ -17,3 +17,6 @@ makemigration:
 
 migrate:
 	cd src/db && alembic upgrade head
+
+drop_table:
+	docker exec -it bankrupt-bd psql -U user -d bankrupt  -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
