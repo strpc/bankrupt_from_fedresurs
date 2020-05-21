@@ -1,4 +1,9 @@
-
+#database settings:
+PG_USER = 'user'
+PG_PASSWORD = 'hackme'
+PG_HOST = 'localhost'
+PG_PORT = 5432
+PG_DATABASE = 'bankrupt'
 
 #log settings:
 DEBUG_MODE = 'DEBUG'
