@@ -59,7 +59,7 @@ async def test_v1_404(test_cli: SanicTestClient):
 
 
 async def test_post_names_201(test_cli: SanicTestClient):
-    json_req = {'name': 'Ромашка'}
+    json_req = {'name': 'Test'}
     uri = '/v1/names/'
     post = await test_cli.post(uri, data=dumps(json_req))
     assert post.status == 201
