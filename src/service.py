@@ -1,6 +1,5 @@
 from tools import request
 
-import asyncio
 from typing import List
 
 
@@ -17,17 +16,18 @@ async def get_list_company(name: str = None) -> List:
     return False
 
 
-async def get_list_messages(
-    guid="971b80ca-06fe-4bfd-98eb-07d5aeda004b",
-) -> List:
+async def get_list_events(guid: str = None) -> List:
+    if guid is None:
+        return False
     response = await request(
-        type_='list_messages',
+        type_='list_events',
         guid=guid,
     )
     if response:
         response = response['pageData']
-        print(type(response))
-        # return response
+        # print(type(response))
+        # pprint(response)
+        return response
     return False
 
 
@@ -35,8 +35,12 @@ def get_text_from_event():
     pass
 
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
+#     import asyncio
+#     from pprint import pprint
+#     asyncio.run(get_list_events('971b80ca-06fe-4bfd-98eb-07d5aeda004b'))
+
     # asyncio.run(get_list_company())
     # asyncio.run(get_list_messages())
-    from app import main
-    main()
+    # from app import main
+    # main()
