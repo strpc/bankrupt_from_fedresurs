@@ -9,14 +9,16 @@ def generate_uuid() -> uuid.UUID:
     return uuid.uuid4()
 
 
-def uuid_from_str(data: str) -> uuid.UUID:
+def uuid_from_str(data: str = None) -> uuid.UUID:
+    if data is None:
+        return False
     return uuid.UUID(data)
 
 
 async def request(
     name: str = None,
     # method: Any['get', 'post'] = 'get',
-    type_: Union['list_company', 'list_messages'] = None,
+    type_: Union['list_company', 'list_events'] = None,
     guid: str = None
     ) -> httpx.Response.json:
     """
@@ -26,7 +28,7 @@ async def request(
     :param str type_: тип запроса(запрос списка компаний или списка сообщений).
     :return dict:
     """
-    if type_ not in ('list_company', 'list_messages'):
+    if type_ not in ('list_company', 'list_events'):
         return False
 
     if type_ == 'list_company' and isinstance(name, str):
@@ -69,7 +71,7 @@ async def request(
         }
 
 
-    elif type_ == 'list_messages' and guid is not None:
+    elif type_ == 'list_events' and guid is not None:
         url = 'https://fedresurs.ru/backend/companies/publications'
 
         data = {
@@ -138,14 +140,18 @@ def datetime_returning():
 
 def datetime_from_string(string: str) -> datetime.datetime:
     try:
-        return datetime.datetime.strptime(string, '%Y-%m-%dT%H:%M:%S')
-    except:
-        return datetime.datetime.strptime('2000-01-01T00:00:00', '%Y-%m-%dT%H:%M:%S')
+        date = datetime.datetime.strptime(string, '%Y-%m-%dT%H:%M:%S')
+    except ValueError:
+        date = datetime.datetime.strptime(string, '%Y-%m-%dT%H:%M:%S.%f')
+    except Exception:
+        date = datetime.datetime.strptime('2000-01-01T00:00:00', '%Y-%m-%dT%H:%M:%S')
+    finally:
+        return date
 
 
 if __name__ == '__main__':
     pass
     # import asyncio
     # asyncio.run(test_req())
-#     asyncio.run(request(name='ромашка', type_='list_messages'))
+#     asyncio.run(request(name='ромашка', type_='list_events'))
 
