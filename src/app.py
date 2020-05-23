@@ -5,16 +5,11 @@ from asyncpgsa import create_pool
 
 import views
 import logger
-from config import (
-    PG_USER,
-    PG_PASSWORD,
-    PG_HOST,
-    PG_PORT,
-    PG_DATABASE,
-)
+import config
 
 
 app = Sanic(__name__)
+app.config.from_object(config)
 
 app.blueprint(views.names)
 app.add_route(
@@ -28,11 +23,11 @@ app.add_route(
 @app.listener('before_server_start')
 async def register_db(app, loop):
     app.pool = await create_pool(
-        host=PG_HOST,
-        port=PG_PORT,
-        user=PG_USER,
-        password=PG_PASSWORD,
-        database=PG_DATABASE,
+        host=app.config.PG_HOST,
+        port=app.config.PG_PORT,
+        user=app.config.PG_USER,
+        password=app.config.PG_PASSWORD,
+        database=app.config.PG_DATABASE,
         loop=loop,
         min_size=5,
         max_size=100
@@ -52,7 +47,8 @@ def main():
         host='0.0.0.0',
         port=8000,
         debug=True,
-        # auto_reload=False,
+        auto_reload=False,
+        RESPONSE_TIMEOUT=20
     )
 
 
