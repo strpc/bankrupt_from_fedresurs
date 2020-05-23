@@ -22,7 +22,7 @@ metadata = MetaData(naming_convention=convention)
 names_table = Table(
     'names',
     metadata,
-    Column('id', Integer, autoincrement=True, primary_key=True),
+    Column('id', Integer, autoincrement=True, primary_key=True, unique=True),
     Column('name', String, nullable=False),
     Column(
         'local_uuid', UUID(as_uuid=True),
@@ -34,7 +34,7 @@ names_table = Table(
 parse_company_table = Table(
     'parsed_company',
     metadata,
-    Column('id', Integer, autoincrement=True, primary_key=True),
+    Column('id', Integer, autoincrement=True, primary_key=True, unique=True),
     Column('link_guid', UUID(as_uuid=True), nullable=False),
     Column('ogrn', BigInteger),
     Column('inn', BigInteger),
@@ -42,24 +42,25 @@ parse_company_table = Table(
     Column('address', String, nullable=False),
     Column('status', String, nullable=False),
     Column('status_date', DateTime),
-    Column('primary_names_uuid', UUID(as_uuid=True), ForeignKey('names.local_uuid')),
+    Column('primary_names_id', Integer, ForeignKey('names.id')),
 )
 
 parse_event_table = Table(
     'parsed_event',
     metadata,
-    Column('id', Integer, autoincrement=True, primary_key=True),
-    Column('guid', UUID(as_uuid=True), nullable=False),
-    Column('number', BigInteger),
+    Column('id', Integer, autoincrement=True, primary_key=True, unique=True),
+    Column('bankrupt_name', String, nullable=False),
     Column('data_publish', DateTime),
+    Column('guid', UUID(as_uuid=True), nullable=False),
     Column('is_annuled', Boolean, nullable=True),
     Column('is_locked', Boolean, nullable=True),
-    Column('title', String, nullable=False),
-    Column('publisher_name', String, nullable=False),
-    Column('type', String, nullable=False),
-    Column('publisher_type', String, nullable=False),
-    Column('bankrupt_name', String, nullable=False),
     Column('is_refuted', Boolean, nullable=False),
+    Column('number', BigInteger),
+    Column('publisher_name', String, nullable=False),
+    Column('publisher_type', String, nullable=False),
+    Column('title', String, nullable=False),
+    Column('type', String, nullable=False),
     Column('text', String),
-    Column('primary_link_guid', Integer, ForeignKey('parsed_company.id')),
+    Column('primary_parsed_company_id', Integer, ForeignKey('parsed_company.id')),
+    Column('primary_names_id', Integer, ForeignKey('names.id')),
 )

@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 264db34d87b2
+Revision ID: e36ebe794312
 Revises: 
-Create Date: 2020-05-22 02:06:03.556601
+Create Date: 2020-05-23 14:45:43.580991
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = '264db34d87b2'
+revision = 'e36ebe794312'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -24,6 +24,7 @@ def upgrade():
     sa.Column('local_uuid', postgresql.UUID(as_uuid=True), nullable=False),
     sa.Column('date', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
     sa.PrimaryKeyConstraint('id', 'local_uuid', name=op.f('pk__names')),
+    sa.UniqueConstraint('id', name=op.f('uq__names__id')),
     sa.UniqueConstraint('local_uuid', name=op.f('uq__names__local_uuid'))
     )
     op.create_table('parsed_company',
@@ -35,27 +36,31 @@ def upgrade():
     sa.Column('address', sa.String(), nullable=False),
     sa.Column('status', sa.String(), nullable=False),
     sa.Column('status_date', sa.DateTime(), nullable=True),
-    sa.Column('primary_names_uuid', postgresql.UUID(as_uuid=True), nullable=True),
-    sa.ForeignKeyConstraint(['primary_names_uuid'], ['names.local_uuid'], name=op.f('fk__parsed_company__primary_names_uuid__names')),
-    sa.PrimaryKeyConstraint('id', name=op.f('pk__parsed_company'))
+    sa.Column('primary_names_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['primary_names_id'], ['names.id'], name=op.f('fk__parsed_company__primary_names_id__names')),
+    sa.PrimaryKeyConstraint('id', name=op.f('pk__parsed_company')),
+    sa.UniqueConstraint('id', name=op.f('uq__parsed_company__id'))
     )
     op.create_table('parsed_event',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('guid', postgresql.UUID(as_uuid=True), nullable=False),
-    sa.Column('number', sa.BigInteger(), nullable=True),
+    sa.Column('bankrupt_name', sa.String(), nullable=False),
     sa.Column('data_publish', sa.DateTime(), nullable=True),
+    sa.Column('guid', postgresql.UUID(as_uuid=True), nullable=False),
     sa.Column('is_annuled', sa.Boolean(), nullable=True),
     sa.Column('is_locked', sa.Boolean(), nullable=True),
-    sa.Column('title', sa.String(), nullable=False),
-    sa.Column('publisher_name', sa.String(), nullable=False),
-    sa.Column('type', sa.String(), nullable=False),
-    sa.Column('publisher_type', sa.String(), nullable=False),
-    sa.Column('bankrupt_name', sa.String(), nullable=False),
     sa.Column('is_refuted', sa.Boolean(), nullable=False),
+    sa.Column('number', sa.BigInteger(), nullable=True),
+    sa.Column('publisher_name', sa.String(), nullable=False),
+    sa.Column('publisher_type', sa.String(), nullable=False),
+    sa.Column('title', sa.String(), nullable=False),
+    sa.Column('type', sa.String(), nullable=False),
     sa.Column('text', sa.String(), nullable=True),
-    sa.Column('primary_link_guid', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['primary_link_guid'], ['parsed_company.id'], name=op.f('fk__parsed_event__primary_link_guid__parsed_company')),
-    sa.PrimaryKeyConstraint('id', name=op.f('pk__parsed_event'))
+    sa.Column('primary_parsed_company_id', sa.Integer(), nullable=True),
+    sa.Column('primary_names_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['primary_names_id'], ['names.id'], name=op.f('fk__parsed_event__primary_names_id__names')),
+    sa.ForeignKeyConstraint(['primary_parsed_company_id'], ['parsed_company.id'], name=op.f('fk__parsed_event__primary_parsed_company_id__parsed_company')),
+    sa.PrimaryKeyConstraint('id', name=op.f('pk__parsed_event')),
+    sa.UniqueConstraint('id', name=op.f('uq__parsed_event__id'))
     )
     # ### end Alembic commands ###
 
