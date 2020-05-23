@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: e36ebe794312
+Revision ID: 30dadb3eb017
 Revises: 
-Create Date: 2020-05-23 14:45:43.580991
+Create Date: 2020-05-23 15:55:28.247928
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = 'e36ebe794312'
+revision = '30dadb3eb017'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -29,7 +29,7 @@ def upgrade():
     )
     op.create_table('parsed_company',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('link_guid', postgresql.UUID(as_uuid=True), nullable=False),
+    sa.Column('link_guid', sa.String(), nullable=False),
     sa.Column('ogrn', sa.BigInteger(), nullable=True),
     sa.Column('inn', sa.BigInteger(), nullable=True),
     sa.Column('name', sa.String(), nullable=False),
@@ -45,7 +45,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('bankrupt_name', sa.String(), nullable=False),
     sa.Column('data_publish', sa.DateTime(), nullable=True),
-    sa.Column('guid', postgresql.UUID(as_uuid=True), nullable=False),
+    sa.Column('guid', sa.String(), nullable=False),
     sa.Column('is_annuled', sa.Boolean(), nullable=True),
     sa.Column('is_locked', sa.Boolean(), nullable=True),
     sa.Column('is_refuted', sa.Boolean(), nullable=False),
