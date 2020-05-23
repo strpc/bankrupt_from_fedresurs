@@ -1,6 +1,3 @@
-#app settings:
-RESPONSE_TIMEOUT = 300 # in sec
-
 #database settings:
 PG_USER = 'user'
 PG_PASSWORD = 'hackme'

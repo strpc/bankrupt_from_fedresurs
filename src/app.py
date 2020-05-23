@@ -3,7 +3,7 @@ from sanic.request import Request
 from sanic.response import json, BaseHTTPResponse as Response
 from asyncpgsa import create_pool
 
-import views
+import handlers
 import logger
 import config
 
@@ -11,9 +11,9 @@ import config
 app = Sanic(__name__)
 app.config.from_object(config)
 
-app.blueprint(views.names)
+app.blueprint(handlers.names)
 app.add_route(
-    handler=views.index,
+    handler=handlers.index,
     uri='/',
     methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
     name='index',
@@ -48,7 +48,6 @@ def main():
         port=8000,
         debug=True,
         auto_reload=False,
-        RESPONSE_TIMEOUT=20
     )
 
 

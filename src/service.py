@@ -25,22 +25,9 @@ async def get_list_events(guid: str = None) -> List:
     )
     if response:
         response = response['pageData']
-        # print(type(response))
-        # pprint(response)
         return response
     return False
 
 
 def get_text_from_event():
     pass
-
-
-# if __name__ == '__main__':
-#     import asyncio
-#     from pprint import pprint
-#     asyncio.run(get_list_events('971b80ca-06fe-4bfd-98eb-07d5aeda004b'))
-
-    # asyncio.run(get_list_company())
-    # asyncio.run(get_list_messages())
-    # from app import main
-    # main()
