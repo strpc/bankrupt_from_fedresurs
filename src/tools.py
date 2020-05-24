@@ -3,9 +3,10 @@ import httpx
 
 import datetime
 import logger
-from os.path import join as path_join, abspath
 import uuid
 from typing import Union, Text
+
+from config import FORMAT_DATE_TIME
 
 
 def generate_uuid() -> uuid.UUID:
@@ -20,7 +21,7 @@ def uuid_from_str(data: str = None) -> uuid.UUID:
 
 async def request(
     name: str = None,
-    type_: Union['list_company', 'list_events', ] = None,
+    type_: Union['list_company', 'list_events',] = None,
     guid: str = None
 ) -> httpx.Response.json:
     """
@@ -82,7 +83,7 @@ async def request(
             'accept': "application/json, text/plain, */*",
             'accept-encoding': "gzip, deflate, br",
             'accept-language': "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
-            'referer': "https://fedresurs.ru/company/971b80ca-06fe-4bfd-98eb-07d5aeda004b",
+            'referer': f"https://fedresurs.ru/company/{guid}",
             'content-type': "application/json"
         }
     else:
@@ -94,6 +95,12 @@ async def request(
 
 
 async def get_html(guid: str = None) -> Text:
+    """
+    Получение html страницы сообщения с помощью GET-запроса
+
+    :param str: - guid сообщения, html которого требуется получить.
+    :return str: - html-код страницы.
+    """
     if guid is None:
         return False
     try:
@@ -116,20 +123,26 @@ async def get_html(guid: str = None) -> Text:
 
 
 def parse_html_for_text(html: str = None):
+    """
+    Извлечение блока "Текст" из html-кода страницы.
+
+    :param str html: - исходный html-код страницы.
+    """
     if html is None:
         return 'False'
     try:
         soup = BeautifulSoup(html, 'lxml')
         div = soup.find('div', {'class': 'msg'}).text
-        text = div.split('Текст:')[-1]
-        return text
+        text = div.split('Текст:')[-1].split('\t')
+        return " ".join(text)
     except:
         return 'False'
 
 
-def datetime_returning():
-    # todo: возврат времени в соответствующем часовом поясе
-    pass
+def datetime_to_string(date: datetime.datetime = None) -> str:
+    if date is None or isinstance(date, datetime.datetime) is not True:
+        date = datetime.datetime.now()
+    return date.strftime(FORMAT_DATE_TIME)
 
 
 def datetime_from_string(string: str) -> datetime.datetime:
@@ -142,10 +155,3 @@ def datetime_from_string(string: str) -> datetime.datetime:
             '2000-01-01T00:00:00', '%Y-%m-%dT%H:%M:%S')
     finally:
         return date
-
-
-if __name__ == '__main__':
-    import asyncio
-    a = asyncio.run(get_html('CBB97C6DB77A29ABF4C43BFB7B7C9505'))
-    a = parse_html_for_text(a)
-    print(a)
