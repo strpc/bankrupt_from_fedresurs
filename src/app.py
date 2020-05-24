@@ -22,20 +22,35 @@ app.add_route(
 
 @app.listener('before_server_start')
 async def init_db(app: Sanic, loop):
-    app.pool = await create_pool(
-        host=app.config.PG_HOST,
-        port=app.config.PG_PORT,
-        user=app.config.PG_USER,
-        password=app.config.PG_PASSWORD,
-        database=app.config.PG_DATABASE,
-        loop=loop,
-        min_size=5,
-        max_size=100
-    )
+    """
+    Подключение базы данных при запуске приложения.
+
+    :param Sanic app: - экземпляр приложения.
+    :param loop: - async-луп приложения.
+    """
+    try:
+        app.pool = await create_pool(
+            host=app.config.PG_HOST,
+            port=app.config.PG_PORT,
+            user=app.config.PG_USER,
+            password=app.config.PG_PASSWORD,
+            database=app.config.PG_DATABASE,
+            loop=loop,
+            min_size=5,
+            max_size=100
+        )
+    except Exception as error:
+        logger.do_write_error('Error connecting database.', error)
 
 
 @app.listener('after_server_stop')
 async def after_server_stop(app: Sanic, loop):
+    """
+    Отключение базы данных после остановки сервера.
+
+    :param Sanic app: - экземпляр приложения.
+    :param loop: - async-луп приложения.
+    """
     try:
         await app.pool.close()
     except Exception as error:
@@ -43,6 +58,7 @@ async def after_server_stop(app: Sanic, loop):
 
 
 def main():
+    """Запуск приложения"""
     app.run(
         host='0.0.0.0',
         port=8000,
