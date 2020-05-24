@@ -16,15 +16,39 @@ names = Blueprint(
 
 @names.route(uri='/names/', methods=['POST'])
 async def create_task(request: Request) -> Response:
-    name = None
+    """
+    Обработчик POST-запроса для создания задачи по сбору информации о компаниях.
+    Ожидается json формата:
+    {
+        "name": "Иванов"
+    }
+    где "Иванов" - название компании.
 
+    Ответ:
+    < HTTP/1.1 202 Accepted
+    < Content-Length: 180
+    < Content-Type: application/json
+    < Connection: keep-alive
+    < Keep-Alive: 5
+
+    body:
+    {
+    "name": "Иванов",
+    "uuid": "d32e302c-7d86-4f1d-9295-370bbcf20c63",
+    "link for check": "http://localhost:8000/v1/names/d32e302c-7d86-4f1d-9295-370bbcf20c63"
+    }
+
+    :param Request request: - тело запроса.
+    """
+    name = None
     if request.json is not None:
         name = request.json.get('name', None)
     if name is None:
-        return json(
-            {'message': "key 'name' in body json is not found. please repeat "
-                "the request with the key 'name'"},
-            status=400
+        return json({
+            'message': "key 'name' in body json is not found. please repeat "
+            "the request with the key 'name'"
+        },
+            status=400,
         )
 
     local_uuid = generate_uuid()
@@ -42,7 +66,7 @@ async def create_task(request: Request) -> Response:
                 'uuid': str(local_uuid),
                 'link for check': link_for_check,
             },
-            status=201,
+            status=202,
             escape_forward_slashes=False
         )
     except Exception as error:
@@ -57,6 +81,26 @@ async def create_task(request: Request) -> Response:
 
 @names.route(uri='/names/<name>', methods=['GET'])
 async def get_information(request: Request, name: str) -> Response:
+    """
+    Обработчик GET-запроса на получение собранной информации.
+    URI формата /names/UUID
+
+    Ответ:
+    < HTTP/1.1 200 OK
+    < Content-Length: 255074
+    < Content-Type: application/json
+    < Connection: keep-alive
+    < Keep-Alive: 5
+
+    body:
+    {
+    "uuid": "1ecd65a6-8c50-4291-b3a3-803c0e82c16e",
+    "messages": [ data]
+    }
+
+    :param Request request: - тело запроса.
+    :param str name: - сгенерированный при POST-запросе уникальный иднетификатор
+    """
     local_uuid = uuid_from_str(name)
     pool = request.app.pool
     try:
@@ -64,12 +108,23 @@ async def get_information(request: Request, name: str) -> Response:
         if data:
             return json(
                 {
-                    "data": "data",  # возвращаем данные
+                    "uuid": name,
+                    "messages": data,
+                },
+                status=200,
+                escape_forward_slashes=False,
+                encode_html_chars=True,
+                ensure_ascii=False,
+
+            )
+        else:
+            return json(
+                {
+                    "uuid": name,
+                    "messages": ['no matches in database'],
                 },
                 status=200,
             )
-        else:
-            raise Exception('no data found in database')
     except Exception as error:
         logger.do_write_error("Data is not found.", error)
         return json(
@@ -85,6 +140,11 @@ async def get_information(request: Request, name: str) -> Response:
     methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD']
 )
 async def index(request: Request) -> Response:
+    """
+    Обработчик несуществующих URI.
+
+    :param Request request: - тело запроса.
+    """
     logger.do_write_info('access to invalid path.', request.ip, request.url)
     return json(
         {
@@ -92,8 +152,3 @@ async def index(request: Request) -> Response:
         },
         status=404,
     )
-
-# FIXME: DEV only
-if __name__ == '__main__':
-    from app import main
-    main()
