@@ -1,5 +1,6 @@
 import sys
 sys.path = ['', '..'] + sys.path[1:]
+import os
 
 from logging.config import fileConfig
 
@@ -13,6 +14,13 @@ from schema import metadata
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+
+section = config.config_ini_section
+config.set_section_option(section, "PG_USER", os.environ.get("APP_PG_USER"))
+config.set_section_option(section, "PG_PASSWORD", os.environ.get("APP_PG_PASSWORD"))
+config.set_section_option(section, "PG_HOST", os.environ.get("APP_PG_HOST"))
+config.set_section_option(section, "PG_PORT", os.environ.get("APP_PG_PORT"))
+config.set_section_option(section, "PG_DATABASE", os.environ.get("APP_PG_DATABASE"))
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
