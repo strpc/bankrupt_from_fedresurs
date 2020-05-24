@@ -5,7 +5,7 @@ from sanic.response import json, BaseHTTPResponse as Response
 import asyncio
 import logger
 from tools import generate_uuid, uuid_from_str
-from views import parse_data
+from views import parse_data, get_data_from_db
 
 
 names = Blueprint(
@@ -58,35 +58,25 @@ async def create_task(request: Request) -> Response:
 @names.route(uri='/names/<name>', methods=['GET'])
 async def get_information(request: Request, name: str) -> Response:
     local_uuid = uuid_from_str(name)
+    pool = request.app.pool
     try:
-        # TODO: запрос в БД, поиск по uuid
-        # TODO: возврат значений.
-        # todo: возврат json со значениями
-        count = "select"
-
-        if count:
+        data = await get_data_from_db(local_uuid, pool)
+        if data:
             return json(
                 {
                     "data": "data",  # возвращаем данные
                 },
                 status=200,
             )
-
+        else:
+            raise Exception('no data found in database')
+    except Exception as error:
+        logger.do_write_error("Data is not found.", error)
         return json(
             {
                 "message": "Data is not found. Please check 'names'",
             },
             status=404,  # нет данных
-        )
-
-    except Exception as error:
-        # fixme: заполнить ошибку
-        logger.do_write_error("Eror reading from database.", error)
-        return json(
-            {
-                'message': 'An error has occurred. Please try again later.',
-            },
-            status=500,
         )
 
 
