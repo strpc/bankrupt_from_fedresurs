@@ -58,11 +58,11 @@ async def test_v1_404(test_cli: SanicTestClient):
     assert await options.json() == resp_json
 
 
-async def test_post_names_201(test_cli: SanicTestClient):
+async def test_post_names_202(test_cli: SanicTestClient):
     json_req = {'name': 'Петрович'}
     uri = '/v1/names/'
     post = await test_cli.post(uri, data=dumps(json_req))
-    assert post.status == 201
+    assert post.status == 202
     assert 'name' in await post.json()
     assert json_req['name'] in (await post.json()).values()
 
@@ -78,9 +78,9 @@ async def test_post_names_400(test_cli: SanicTestClient):
     assert json_resp == await post.json()
 
 
-async def test_get_names_200(test_cli: SanicTestClient):
-    pass
-
-
 async def test_get_names_404(test_cli: SanicTestClient):
-    pass
+    uri = '/v1/names/c30fc543'
+    resp = {"message": "Data is not found. Please check 'names'"}
+    get = await test_cli.get(uri)
+    assert get.status == 404
+    assert resp == await get.json()
