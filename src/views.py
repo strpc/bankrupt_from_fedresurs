@@ -1,20 +1,36 @@
 from uuid import UUID
+from asyncpg.pool import Pool
+from sqlalchemy import join
 
-from service import get_list_company, get_list_events
+from typing import Dict
+
+from service import (
+    get_list_company,
+    get_list_events,
+)
 import logger
 from tools import (
     generate_uuid,
     datetime_from_string,
+    get_html,
+    parse_html_for_text,
 )
-from db.schema import names_table, parse_company_table, parse_event_table
+from db.schema import (
+    names_table,
+    parse_company_table,
+    parse_event_table,
+)
 
 
-async def parse_data(local_uuid: UUID, name, pool):
+async def parse_data(local_uuid: UUID, name: str, pool: Pool):
     try:
         list_company = await get_list_company(name)
         if list_company is False:
             raise Exception('list of companies was not received')
+    except Exception as error:
+        logger.do_write_error('Error getting list of companies.', error)
 
+    try:
         async with pool.acquire() as conn:  # transaction
             names_query = names_table.insert().values(
                 name=name,
@@ -40,7 +56,8 @@ async def parse_data(local_uuid: UUID, name, pool):
                 list_events = await get_list_events(company.get('guid'))
                 if list_events:
                     for event in list_events:
-                        #! todo: получение текста
+                        html_for_text = await get_html(event.get('guid'))
+                        text = parse_html_for_text(html_for_text)
                         event_query = parse_event_table.insert().values(
                             bankrupt_name=event.get('bankruptName'),
                             data_publish=datetime_from_string(
@@ -55,15 +72,36 @@ async def parse_data(local_uuid: UUID, name, pool):
                             publisher_type=event.get('publisherType'),
                             title=event.get('title'),
                             type=event.get('type'),
-                            text='Lorem',  # event.get(''), ###########
+                            text=str(text),
                             primary_parsed_company_id=company_value['id'],
                             primary_names_id=names_value['id'],
                         )
                         await conn.fetchrow(event_query)
 
     except Exception as error:
-        logger.do_write_error('Error writing to database.', error)
+        logger.do_write_error('An error occurred while parsing pages or '
+                               'writing to the database.', error)
 
+
+async def get_data_from_db(uuid: UUID, pool: Pool) -> Dict:
+    if uuid is None:
+        return False
+    # try:
+    j = parse_event_table.join(
+        names_table, parse_event_table.c.primary_names_id == names_table.c.id
+        )
+    query_data = parse_event_table.select().with_only_columns(
+        [parse_event_table.c.type]
+        ).select_from(j).where(
+        names_table.c.local_uuid == uuid
+        ).where(
+            parse_event_table.c.type == 'BankruptcyMessage'
+        )
+
+    async with pool.acquire() as conn:
+        values = await conn.fetch(query_data)
+        print(values)
+    # except Exception as error:
 
 if __name__ == '__main__':
     from app import main
