@@ -2,16 +2,18 @@ from uuid import UUID
 from asyncpg.pool import Pool
 from sqlalchemy import join
 
-from typing import Dict
+from typing import List
 
 from service import (
     get_list_company,
     get_list_events,
+    get_text_from_event,
 )
 import logger
 from tools import (
     generate_uuid,
     datetime_from_string,
+    datetime_to_string,
     get_html,
     parse_html_for_text,
 )
@@ -23,6 +25,14 @@ from db.schema import (
 
 
 async def parse_data(local_uuid: UUID, name: str, pool: Pool):
+    """
+    Парсинг данных со страниц и запись их в базу данных.
+
+    :param UUID local_uuid: - локальный(сгенерированный) uuid запроса, который
+    потребутеся в дальнейшем для вызова данных из базы.
+    :param str name: - запрос пользователя(имя компании для парсинга).
+    :param Pool pool: - пул подключения к базе данных.
+    """
     try:
         list_company = await get_list_company(name)
         if list_company is False:
@@ -56,8 +66,8 @@ async def parse_data(local_uuid: UUID, name: str, pool: Pool):
                 list_events = await get_list_events(company.get('guid'))
                 if list_events:
                     for event in list_events:
-                        html_for_text = await get_html(event.get('guid'))
-                        text = parse_html_for_text(html_for_text)
+                        text = await get_text_from_event(event.get('guid'))
+
                         event_query = parse_event_table.insert().values(
                             bankrupt_name=event.get('bankruptName'),
                             data_publish=datetime_from_string(
@@ -80,29 +90,50 @@ async def parse_data(local_uuid: UUID, name: str, pool: Pool):
 
     except Exception as error:
         logger.do_write_error('An error occurred while parsing pages or '
-                               'writing to the database.', error)
+                              'writing to the database.', error)
 
 
-async def get_data_from_db(uuid: UUID, pool: Pool) -> Dict:
-    if uuid is None:
+async def get_data_from_db(uuid: UUID, pool: Pool) -> List:
+    """
+    Поиск локального uuid и возвращение данных из базы.
+
+    :param UUID uuid: - локальный uuid, по которому ищутся данные в базе.
+    :param Pool pool: - пул подключения к базе данных.
+    :return List: - список с данными из базы данных.
+    """
+    if uuid is None or pool is None:
         return False
-    # try:
-    j = parse_event_table.join(
-        names_table, parse_event_table.c.primary_names_id == names_table.c.id
+    try:
+        j = parse_event_table.join(
+            names_table, parse_event_table.c.primary_names_id == names_table.c.id
         )
-    query_data = parse_event_table.select().with_only_columns(
-        [parse_event_table.c.type]
+        query_data = parse_event_table.select().with_only_columns(
+            [
+                parse_event_table.c.bankrupt_name,
+                parse_event_table.c.title,
+                parse_event_table.c.number,
+                parse_event_table.c.text,
+                parse_event_table.c.data_publish,
+                parse_event_table.c.guid,
+            ]
         ).select_from(j).where(
-        names_table.c.local_uuid == uuid
+            names_table.c.local_uuid == uuid
         ).where(
             parse_event_table.c.type == 'BankruptcyMessage'
         )
-
-    async with pool.acquire() as conn:
-        values = await conn.fetch(query_data)
-        print(values)
-    # except Exception as error:
-
-if __name__ == '__main__':
-    from app import main
-    main()
+        async with pool.acquire() as conn:
+            values = await conn.fetch(query_data)
+        data = []
+        url_build = 'https://bankrot.fedresurs.ru/MessageWindow.aspx?ID='
+        for value in values:
+            data.append({
+                'name': value['bankrupt_name'],
+                'title': value['title'],
+                'number': value['number'],
+                'text': value['text'],
+                'date': datetime_to_string(value['data_publish']),
+                'url': url_build + value['guid'],
+            })
+        return data
+    except Exception as error:
+        return False
