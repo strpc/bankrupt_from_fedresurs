@@ -21,7 +21,7 @@ app.add_route(
 
 
 @app.listener('before_server_start')
-async def register_db(app, loop):
+async def init_db(app: Sanic, loop):
     app.pool = await create_pool(
         host=app.config.PG_HOST,
         port=app.config.PG_PORT,
@@ -35,7 +35,7 @@ async def register_db(app, loop):
 
 
 @app.listener('after_server_stop')
-async def after_server_stop(app, loop):
+async def after_server_stop(app: Sanic, loop):
     try:
         await app.pool.close()
     except Exception as error:
