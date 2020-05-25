@@ -1,8 +1,8 @@
 from uuid import UUID
+from typing import List
+
 from asyncpg.pool import Pool
 from sqlalchemy import join
-
-from typing import List
 
 from service import (
     get_list_company,

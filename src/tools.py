@@ -1,11 +1,11 @@
+import datetime
+import uuid
+
 from bs4 import BeautifulSoup
 import httpx
 
-import datetime
 import logger
-import uuid
 from typing import Union, Text
-
 from config import FORMAT_DATE_TIME
 
 

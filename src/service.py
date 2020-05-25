@@ -1,6 +1,6 @@
-from tools import request, get_html, parse_html_for_text
-
 from typing import List
+
+from tools import request, get_html, parse_html_for_text
 
 
 async def get_list_company(name: str = None) -> List:
