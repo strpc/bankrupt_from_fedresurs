@@ -1,0 +1,27 @@
+version: '3.7'
+
+services:
+  db:
+    image: postgres
+    container_name: postgres-db
+    environment:
+      - POSTGRES_DB=bankrupt
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=hackme
+
+  app:
+    build: .
+    container_name: app
+    environment:
+      - APP_ACCESS_LOG=False
+      - APP_DEBUG=False
+      - APP_PG_USER=user
+      - APP_PG_PASSWORD=hackme
+      - APP_PG_HOST=db
+      - APP_PG_PORT=5432
+      - APP_PG_DATABASE=bankrupt
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    command: python ./src/app.py --host 0.0.0.0 --port 8000
