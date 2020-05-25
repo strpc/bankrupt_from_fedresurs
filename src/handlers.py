@@ -101,8 +101,22 @@ async def get_information(request: Request, name: str) -> Response:
     :param Request request: - тело запроса.
     :param str name: - сгенерированный при POST-запросе уникальный иднетификатор
     """
-    local_uuid = uuid_from_str(name)
-    pool = request.app.pool
+    try:
+        pool = request.app.pool
+    except Exception as error:
+        logger.do_write_error('no database connection', error)
+
+    try:
+        local_uuid = uuid_from_str(name)
+    except Exception as error:
+        logger.do_write_error('invalid uuid entered', error)
+        return json(
+            {
+                "message": "Invalid uuid",
+            },
+            status=400,  # нет данных
+        )
+
     try:
         data = await get_data_from_db(local_uuid, pool)
         if data:
@@ -115,7 +129,6 @@ async def get_information(request: Request, name: str) -> Response:
                 escape_forward_slashes=False,
                 encode_html_chars=True,
                 ensure_ascii=False,
-
             )
         else:
             return json(
