@@ -1,12 +1,17 @@
+USER = user
+PASSWORD = hackme
+DB = bankrupt
+PORT = 5432
+
 test:
 	docker exec -it app su -c "pytest -v"
 
 postgres:
 	docker stop postgres-db || true
 	docker run --rm --detach --name=postgres-db \
-		--env POSTGRES_USER=user \
-		--env POSTGRES_PASSWORD=hackme \
-		--env POSTGRES_DB=bankrupt \
+		--env POSTGRES_USER=$(USER) \
+		--env POSTGRES_PASSWORD=$(PASSWORD) \
+		--env POSTGRES_DB=$(DB) \
 		--publish 5432:5432 postgres
 
 makemigration:
@@ -29,5 +34,23 @@ upb:
 down:
 	docker-compose down
 
-b:
+connect:
 	docker exec -it $(c) su
+
+attach:
+	docker container logs -f $(c)
+
+local_migrate:
+	cd src/db && alembic upgrade head
+
+run:
+	./.venv/bin/python3 ./src/app.py
+
+local_test:
+	pytest -v
+
+export:
+	export APP_ACCESS_LOG=False && export APP_DEBUG=False && \
+	export APP_PG_USER=$(USER) && export APP_PG_PASSWORD=$(PASSWORD) && \
+	export APP_PG_HOST=localhost && export APP_PG_PORT=5432 && \
+	export APP_PG_DATABASE=$(DB)
