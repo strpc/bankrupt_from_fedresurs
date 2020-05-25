@@ -15,7 +15,7 @@ from config import (
 )
 
 
-DIR_LOG_PATH = os.path.abspath(os.path.join(os.getcwd(), '..', DIR_NAME_LOG))
+DIR_LOG_PATH = os.path.abspath(os.path.join(os.getcwd(), DIR_NAME_LOG))
 
 
 if not os.path.exists(DIR_LOG_PATH):
