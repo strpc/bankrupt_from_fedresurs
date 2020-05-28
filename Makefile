@@ -51,6 +51,6 @@ local_test:
 
 export:
 	export APP_ACCESS_LOG=False && export APP_DEBUG=False && \
-	export APP_PG_USER=$(USER) && export APP_PG_PASSWORD=$(PASSWORD) && \
-	export APP_PG_HOST=localhost && export APP_PG_PORT=5432 && \
-	export APP_PG_DATABASE=$(DB)
+	export APP_AUTORELOAD=False && export APP_PG_USER=$(USER) && \
+	export APP_PG_PASSWORD=$(PASSWORD) && export APP_PG_HOST=localhost && \
+	export APP_PG_PORT=5432 && export APP_PG_DATABASE=$(DB)
