@@ -78,9 +78,17 @@ async def test_post_names_400(test_cli: SanicTestClient):
     assert json_resp == await post.json()
 
 
-async def test_get_names_404(test_cli: SanicTestClient):
-    uri = '/v1/names/c30fc543'
+async def test_get_names_not_found_404(test_cli: SanicTestClient):
+    uri = '/v1/names/3556dda5-b1d3-46ed-bb46-7e2d1d312fa3'
     resp = {"message": "Data is not found. Please check 'names'"}
     get = await test_cli.get(uri)
     assert get.status == 404
+    assert resp == await get.json()
+
+
+async def test_get_names_invalid_uuid_400(test_cli: SanicTestClient):
+    uri = '/v1/names/3556dda5'
+    resp = {"message": "Invalid uuid"}
+    get = await test_cli.get(uri)
+    assert get.status == 400
     assert resp == await get.json()
