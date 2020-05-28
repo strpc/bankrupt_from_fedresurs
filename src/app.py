@@ -65,7 +65,8 @@ def run_app(host, port):
     app.run(
         host=host,
         port=port,
-        debug=app.config.DEBUG
+        debug=app.config.get('DEBUG', True),
+        auto_reload=app.config.get('AUTORELOAD', True)
     )
 
 
