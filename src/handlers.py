@@ -131,15 +131,10 @@ async def get_information(request: Request, name: str) -> Response:
                 ensure_ascii=False,
             )
         else:
-            return json(
-                {
-                    "uuid": name,
-                    "messages": ['no matches in database'],
-                },
-                status=200,
-            )
+            raise Exception('Data is not found.')
+
     except Exception as error:
-        logger.do_write_error("Data is not found.", error)
+        logger.do_write_error(error)
         return json(
             {
                 "message": "Data is not found. Please check 'names'",
