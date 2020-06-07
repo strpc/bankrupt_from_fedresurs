@@ -123,7 +123,7 @@ async def get_information(request: Request, name: str) -> Response:
             return json(
                 {
                     "uuid": name,
-                    "messages": data,
+                    "messages": list(data.dict().values())[0],
                 },
                 status=200,
                 escape_forward_slashes=False,

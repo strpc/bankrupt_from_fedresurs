@@ -13,7 +13,6 @@ import logger
 from tools import (
     generate_uuid,
     datetime_from_string,
-    datetime_to_string,
     get_html,
     parse_html_for_text,
 )
@@ -22,6 +21,7 @@ from db.schema import (
     parse_company_table,
     parse_event_table,
 )
+from db.models import ListEvent
 
 
 async def parse_data(local_uuid: UUID, name: str, pool: Pool):
@@ -122,18 +122,8 @@ async def get_data_from_db(uuid: UUID, pool: Pool) -> List:
             parse_event_table.c.type == 'BankruptcyMessage'
         )
         async with pool.acquire() as conn:
-            values = await conn.fetch(query_data)
-        data = []
-        url_build = 'https://bankrot.fedresurs.ru/MessageWindow.aspx?ID='
-        for value in values:
-            data.append({
-                'name': value['bankrupt_name'],
-                'title': value['title'],
-                'number': value['number'],
-                'text': value['text'],
-                'date': datetime_to_string(value['data_publish']),
-                'url': url_build + value['guid'],
-            })
-        return data
+            values = ListEvent(data=await conn.fetch(query_data))
+        return values
+
     except Exception as error:
         return False
