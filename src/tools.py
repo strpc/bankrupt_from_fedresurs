@@ -33,8 +33,6 @@ async def request(
     """
     if type_ not in ('list_company', 'list_events',):
         return False
-    cookies = {}
-
     if type_ == 'list_company' and isinstance(name, str):
         url = 'https://fedresurs.ru/backend/companies/search'
         data = {
@@ -137,12 +135,6 @@ def parse_html_for_text(html: str = None):
         return " ".join(text)
     except:
         return 'False'
-
-
-def datetime_to_string(date: datetime.datetime = None) -> str:
-    if date is None or isinstance(date, datetime.datetime) is not True:
-        date = datetime.datetime.now()
-    return date.strftime(FORMAT_DATE_TIME)
 
 
 def datetime_from_string(string: str) -> datetime.datetime:
