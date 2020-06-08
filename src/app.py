@@ -8,6 +8,7 @@ from asyncpgsa import create_pool
 import handlers
 import logger
 import config
+from exceptions import APIException, on_api_exception
 
 
 app = Sanic(__name__, load_env='APP_')
@@ -19,6 +20,7 @@ app.add_route(
     methods=['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
     name='index',
 )
+app.error_handler.add(APIException, on_api_exception)
 
 
 @app.listener('before_server_start')

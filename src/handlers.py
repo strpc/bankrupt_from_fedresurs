@@ -4,8 +4,10 @@ from sanic.response import json, BaseHTTPResponse as Response
 
 import asyncio
 import logger
+
 from tools import generate_uuid, uuid_from_str
 from views import parse_data, get_data_from_db
+from exceptions import APIException
 
 
 names = Blueprint(
@@ -44,11 +46,10 @@ async def create_task(request: Request) -> Response:
     if request.json is not None:
         name = request.json.get('name', None)
     if name is None:
-        return json({
-            'message': "key 'name' in body json is not found. please repeat "
-            "the request with the key 'name'"
-        },
-            status=400,
+        raise APIException(
+            message="key 'name' in body json is not found. please repeat "
+            "the request with the key 'name'",
+            status=400
         )
 
     local_uuid = generate_uuid()
@@ -71,12 +72,9 @@ async def create_task(request: Request) -> Response:
         )
     except Exception as error:
         logger.do_write_error('no database connection.', error)
-        return json(
-            {
-                'message': 'An error has occurred. Please try again later.'
-            },
-            status=500
-        )
+        raise APIException(
+            message='An error has occurred. Please try again later.',
+            status=500)
 
 
 @names.route(uri='/names/<name>', methods=['GET'])
