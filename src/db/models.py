@@ -16,13 +16,13 @@ class Event(BaseModel):
     guid: str
 
     @validator('data_publish')
-    def datetime_to_string(date: datetime = None) -> str:
+    def datetime_to_string(cls, date: datetime = None) -> str:
         if date is None or isinstance(date, datetime) is not True:
             date = datetime.datetime.now()
         return date.strftime(FORMAT_DATE_TIME)
 
     @validator('guid')
-    def build_url(url: str):
+    def build_url(cls, url: str) -> str:
         base_url = 'https://bankrot.fedresurs.ru/MessageWindow.aspx?ID='
         return base_url + url
 
