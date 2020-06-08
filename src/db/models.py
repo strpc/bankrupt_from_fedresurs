@@ -3,6 +3,7 @@ from typing import List
 
 from asyncpg import Record
 from pydantic import BaseModel, validator
+import ujson
 
 from config import FORMAT_DATE_TIME
 
@@ -26,6 +27,14 @@ class Event(BaseModel):
         base_url = 'https://bankrot.fedresurs.ru/MessageWindow.aspx?ID='
         return base_url + url
 
+    class Config:
+        json_loads = ujson.loads
+        json_dumps = ujson.dumps
+
 
 class ListEvent(BaseModel):
     data: List[Event]
+
+    class Config:
+        json_loads = ujson.loads
+        json_dumps = ujson.dumps
