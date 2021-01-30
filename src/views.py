@@ -12,8 +12,6 @@ import logger
 from tools import (
     generate_uuid,
     datetime_from_string,
-    get_html,
-    parse_html_for_text,
 )
 from db.schema import (
     names_table,
