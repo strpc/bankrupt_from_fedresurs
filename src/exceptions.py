@@ -1,4 +1,4 @@
-from sanic.response import json, BaseHTTPResponse as Response
+from sanic.response import json
 from sanic.request import Request
 
 

@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import List
 
-from asyncpg import Record
 from pydantic import BaseModel, validator
 import ujson
 

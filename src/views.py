@@ -1,8 +1,7 @@
 from uuid import UUID
-from typing import List
+from typing import List, Union
 
 from asyncpg.pool import Pool
-from sqlalchemy import join
 
 from service import (
     get_list_company,

@@ -1,9 +1,9 @@
+import asyncio
+import logger
+
 from sanic import Blueprint
 from sanic.request import Request
 from sanic.response import json, BaseHTTPResponse as Response
-
-import asyncio
-import logger
 
 from tools import generate_uuid, uuid_from_str
 from views import parse_data, get_data_from_db

@@ -5,8 +5,7 @@ from bs4 import BeautifulSoup
 import httpx
 
 import logger
-from typing import Union, Text
-from config import FORMAT_DATE_TIME
+from typing import Union, Optional
 
 
 def generate_uuid() -> uuid.UUID:
