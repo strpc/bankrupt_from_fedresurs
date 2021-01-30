@@ -137,6 +137,7 @@ def parse_html_for_text(html: str = None):
 
 
 def datetime_from_string(string: str) -> datetime.datetime:
+    date = None
     try:
         date = datetime.datetime.strptime(string, '%Y-%m-%dT%H:%M:%S')
     except ValueError:
