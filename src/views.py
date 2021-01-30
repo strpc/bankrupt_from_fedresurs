@@ -32,6 +32,7 @@ async def parse_data(local_uuid: UUID, name: str, pool: Pool):
     :param str name: - запрос пользователя(имя компании для парсинга).
     :param Pool pool: - пул подключения к базе данных.
     """
+    list_company = []
     try:
         list_company = await get_list_company(name)
         if list_company is False:
@@ -92,7 +93,7 @@ async def parse_data(local_uuid: UUID, name: str, pool: Pool):
                               'writing to the database.', error)
 
 
-async def get_data_from_db(uuid: UUID, pool: Pool) -> List:
+async def get_data_from_db(uuid: UUID, pool: Pool) -> Union[bool, List]:
     """
     Поиск локального uuid и возвращение данных из базы.
 

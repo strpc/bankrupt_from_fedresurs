@@ -12,7 +12,7 @@ def generate_uuid() -> uuid.UUID:
     return uuid.uuid4()
 
 
-def uuid_from_str(data: str = None) -> uuid.UUID:
+def uuid_from_str(data: str = None) -> Union[bool, uuid.UUID]:
     if data is None:
         return False
     return uuid.UUID(data)
@@ -20,14 +20,15 @@ def uuid_from_str(data: str = None) -> uuid.UUID:
 
 async def request(
     name: str = None,
-    type_: Union['list_company', 'list_events',] = None,
-    guid: str = None
+    type_: Optional[str] = None,
+    guid: Optional[str] = None
 ) -> httpx.Response.json:
     """
     HTTP-запросы к сервису.
 
     :param str name: имя компании для поиска.
     :param str type_: тип запроса(запрос списка компаний или списка сообщений).
+    :param str guid: guid сообщения
     :return dict:
     """
     if type_ not in ('list_company', 'list_events',):
@@ -91,11 +92,11 @@ async def request(
         return response.json()
 
 
-async def get_html(guid: str = None) -> Text:
+async def get_html(guid: Optional[str] = None) -> Union[bool, str]:
     """
     Получение html страницы сообщения с помощью GET-запроса
 
-    :param str: - guid сообщения, html которого требуется получить.
+    :param guid: - guid сообщения, html которого требуется получить.
     :return str: - html-код страницы.
     """
     if guid is None:
@@ -119,7 +120,7 @@ async def get_html(guid: str = None) -> Text:
         return False
 
 
-def parse_html_for_text(html: str = None):
+def parse_html_for_text(html: str = None) -> str:
     """
     Извлечение блока "Текст" из html-кода страницы.
 
