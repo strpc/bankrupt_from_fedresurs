@@ -55,7 +55,7 @@ async def create_task(request: Request) -> Response:
     local_uuid = generate_uuid()
     try:
         pool = request.app.pool
-        await asyncio.gather(parse_data(local_uuid, name, pool))
+        asyncio.ensure_future(parse_data(local_uuid, name, pool))
 
         uri_check = request.app.url_for(
             'names.get_information', name=local_uuid
